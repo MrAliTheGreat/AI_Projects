@@ -30,6 +30,10 @@ class State():
 		
 		return str(self.curLoc_x) + str(self.curLoc_y) + str(self.curNumRemainingBalls) + strNeedDelivery + strParent
 
+	def getHashBFS(self):
+		strNeedDelivery = "".join([str(t) for t in self.needDelivery])		
+		return str(self.curLoc_x) + str(self.curLoc_y) + str(self.curNumRemainingBalls) + strNeedDelivery	
+
 	def getNumPicked(self):
 		return len(self.hasPicked)
 

@@ -30,6 +30,10 @@ class State():
 		
 		return str(self.curLoc_x) + str(self.curLoc_y) + str(self.curNumRemainingBalls) + strNeedDelivery + strParent
 
+	def getHashBFS(self):
+		strNeedDelivery = "".join([str(t) for t in self.needDelivery])		
+		return str(self.curLoc_x) + str(self.curLoc_y) + str(self.curNumRemainingBalls) + strNeedDelivery		
+
 	def getNumPicked(self):
 		return len(self.hasPicked)
 
@@ -84,7 +88,7 @@ def isValidInMaze(maze , x , y , num_rows , num_columns):
 
 def updateFrontier(frontier , newState , goal_x , goal_y , explored):
 	frontier.append(newState)
-	explored.add(newState.getHash())
+	explored.add(newState.getHashBFS())
 	
 	if(newState.getCurLoc_x() == goal_x and newState.getCurLoc_y() == goal_y and newState.getCurNumRemainingBalls() == 0):
 		return True
@@ -130,9 +134,9 @@ def grabBall(maze , curState , ballsInitLocs , ballsDestLocs , frontier , explor
 	newState = State(curState.getCurLoc_x() , curState.getCurLoc_y() , curState.getCurCapacity() - 1 , 
 					 curState.getCurNumRemainingBalls() , newNeedDelivery , newHasPicked , curState)
 	
-	if(newState.getHash() not in explored):
+	if(newState.getHashBFS() not in explored):
 		frontier.append(newState)
-		explored.add(newState.getHash())
+		explored.add(newState.getHashBFS())
 		
 
 
@@ -144,7 +148,7 @@ def BFS(maze , num_rows , num_columns , start_x , start_y , goal_x , goal_y , ca
 
 	start_state = State(start_x , start_y , capacity , num_balls , [] , [])
 	frontier.append(start_state)
-	explored.add(start_state.getHash())
+	explored.add(start_state.getHashBFS())
 
 	uniqueExplored = set()
 	numExploredStates = 0; numUniqueExploredStates = 0
@@ -156,9 +160,9 @@ def BFS(maze , num_rows , num_columns , start_x , start_y , goal_x , goal_y , ca
 		numExploredStates += 1
 		curState = frontier.pop(0)
 
-		if(curState.getHash() not in uniqueExplored):
+		if(curState.getHashBFS() not in uniqueExplored):
 			numUniqueExploredStates += 1
-			uniqueExplored.add(curState.getHash())
+			uniqueExplored.add(curState.getHashBFS())
 
 		grabBall(maze , curState , ballsInitLocs , ballsDestLocs , frontier , explored)
 		placeBall(maze , curState , ballsDestLocs)
@@ -168,7 +172,7 @@ def BFS(maze , num_rows , num_columns , start_x , start_y , goal_x , goal_y , ca
 							 curState.getCurNumRemainingBalls() , curState.getNeedDelivery() , curState.getHasPicked() ,
 							 curState)
 
-			if(newState.getHash() not in explored):
+			if(newState.getHashBFS() not in explored):
 				if(updateFrontier(frontier , newState , goal_x , goal_y , explored)):
 					return newState , numExploredStates , numUniqueExploredStates
 
@@ -177,7 +181,7 @@ def BFS(maze , num_rows , num_columns , start_x , start_y , goal_x , goal_y , ca
 							 curState.getCurNumRemainingBalls() , curState.getNeedDelivery() , curState.getHasPicked() ,
 							 curState)
 
-			if(newState.getHash() not in explored):
+			if(newState.getHashBFS() not in explored):
 				if(updateFrontier(frontier , newState , goal_x , goal_y , explored)):
 					return newState	, numExploredStates , numUniqueExploredStates				
 
@@ -186,7 +190,7 @@ def BFS(maze , num_rows , num_columns , start_x , start_y , goal_x , goal_y , ca
 							 curState.getCurNumRemainingBalls() , curState.getNeedDelivery() , curState.getHasPicked() ,
 							 curState)						
 			
-			if(newState.getHash() not in explored):
+			if(newState.getHashBFS() not in explored):
 				if(updateFrontier(frontier , newState , goal_x , goal_y , explored)):
 					return newState , numExploredStates , numUniqueExploredStates
 
@@ -195,7 +199,7 @@ def BFS(maze , num_rows , num_columns , start_x , start_y , goal_x , goal_y , ca
 							 curState.getCurNumRemainingBalls() , curState.getNeedDelivery() , curState.getHasPicked() ,
 							 curState)
 			
-			if(newState.getHash() not in explored):
+			if(newState.getHashBFS() not in explored):
 				if(updateFrontier(frontier , newState , goal_x , goal_y , explored)):
 					return newState , numExploredStates , numUniqueExploredStates
 

@@ -59,6 +59,10 @@ class State():
 		
 		return str(self.curLoc_x) + str(self.curLoc_y) + str(self.curNumRemainingBalls) + strNeedDelivery + strParent
 
+	def getHashBFS(self):
+		strNeedDelivery = "".join([str(t) for t in self.needDelivery])		
+		return str(self.curLoc_x) + str(self.curLoc_y) + str(self.curNumRemainingBalls) + strNeedDelivery		
+
 	def getNumPicked(self):
 		return len(self.hasPicked)
 
@@ -204,7 +208,7 @@ def findMinHeuDelivery(curState):
 def calculateF(curState , goal_x , goal_y , num_balls , ballsInitLocs , ballsDestLocs):
 	# Picking up a ball is a move so it's used in f calculation
 
-	# Heuristic 1 --> Surely Admissible , Consistence
+	# Heuristic 1 --> Surely Admissible
 	if(curState.getCurNumRemainingBalls() == 0):
 		return curState.getDepth() + curState.getNumPicked() + \
 			   findManhattanDistance(curState.getCurLoc_x() , curState.getCurLoc_y() , goal_x , goal_y)
