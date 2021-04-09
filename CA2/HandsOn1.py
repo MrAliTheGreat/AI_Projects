@@ -9,15 +9,16 @@ class JobScheduler:
         self.doctorsIds = fileInfo[1]
         self.maxCapacity = fileInfo[2]
         self.allShifts = fileInfo[3]
-        self.popSize = 300
+        self.popSize = 350
         # [[[]] , [[] ==> gene(shift)] ==> chromosome(one assignment)] ==> chromosomes(all assignments)
         self.chromosomes = self.generateInitialPopulation()
-        self.elitismPercentage = 0.18
-        self.pc = 0.9
-        self.pm = 0.1
+        self.elitismPercentage = 0.12
+        self.pc = 0.8
+        self.pm = 0.2
 #         self.crossOverPoints = -1
         self.bestFitness = float("inf")
         self.repetitaveFitnesses = 0
+        self.rounds = 0
         
     def createOneGene(self):
         num_docs = random.randint(0 , self.doctors)
@@ -54,72 +55,53 @@ class JobScheduler:
             #         chromosome2[0 : slice_point] + chromosome1[slice_point:])
 
 
-            # Two-point
-            slice_point_1 = random.randint(0 , len(chromosome1) - 1)
-            slice_point_2 = random.randint(slice_point_1 , len(chromosome1) - 1)
-            return (chromosome1[0 : slice_point_1] + chromosome2[slice_point_1 : slice_point_2] + chromosome1[slice_point_2:] ,
-                    chromosome2[0 : slice_point_1] + chromosome1[slice_point_1 : slice_point_2] + chromosome2[slice_point_2:])
-
-            # # Three-point
+            # # Two-point
             # slice_point_1 = random.randint(0 , len(chromosome1) - 1)
             # slice_point_2 = random.randint(slice_point_1 , len(chromosome1) - 1)
-            # slice_point_3 = random.randint(slice_point_2 , len(chromosome1) - 1)
-            # return (chromosome1[0 : slice_point_1] + chromosome2[slice_point_1 : slice_point_2] + chromosome1[slice_point_2 : slice_point_3] + chromosome2[slice_point_3:] ,
-            #         chromosome2[0 : slice_point_1] + chromosome1[slice_point_1 : slice_point_2] + chromosome2[slice_point_2 : slice_point_3] + chromosome1[slice_point_3:])            
+            # return (chromosome1[0 : slice_point_1] + chromosome2[slice_point_1 : slice_point_2] + chromosome1[slice_point_2:] ,
+            #         chromosome2[0 : slice_point_1] + chromosome1[slice_point_1 : slice_point_2] + chromosome2[slice_point_2:])
+
+            # Three-point
+            slice_point_1 = random.randint(0 , len(chromosome1) - 1)
+            slice_point_2 = random.randint(slice_point_1 , len(chromosome1) - 1)
+            slice_point_3 = random.randint(slice_point_2 , len(chromosome1) - 1)
+            return (chromosome1[0 : slice_point_1] + chromosome2[slice_point_1 : slice_point_2] + chromosome1[slice_point_2 : slice_point_3] + chromosome2[slice_point_3:] ,
+                    chromosome2[0 : slice_point_1] + chromosome1[slice_point_1 : slice_point_2] + chromosome2[slice_point_2 : slice_point_3] + chromosome1[slice_point_3:])            
         
         return chromosome1 , chromosome2
     
     
     def mutate_gene(self , gene):
-        existing_docs = [False] * self.doctors
+        possible_docs = []
+
+        for docID in self.doctorsIds:
+            if(docID not in gene):
+                possible_docs.append(docID)
         
-        for docID in gene:
-            existing_docs[docID] = True
+
+        has_been_added_docs = [False] * len(possible_docs)
         
-        if(False not in existing_docs):
-            return gene
+        num_toBeMutated = random.randint(0 , len(possible_docs))
+
+        new_gene = []
         
-        if(random.random() <= 0.75):
-
-            has_mutated_docs = [False] * len(gene)
-            num_toBeMutated = 0
+        for _ in range(num_toBeMutated):
+            index_added = random.randint(0 , len(possible_docs) - 1)
+            while(has_been_added_docs[index_added]):
+                index_added = random.randint(0 , len(possible_docs) - 1)
+            has_been_added_docs[index_added] = True
             
-            if(len(gene) > 0):
-                if(self.doctors - len(gene) < len(gene)):
-                    num_toBeMutated = random.randint(1 , self.doctors - len(gene))
-                else:
-                    num_toBeMutated = random.randint(1 , len(gene))
+            new_gene.append(possible_docs[index_added])    
             
-            for _ in range(num_toBeMutated):
-                index_toBeMutated = random.randint(0 , len(gene) - 1)
-                while(has_mutated_docs[index_toBeMutated]):
-                    index_toBeMutated = random.randint(0 , len(gene) - 1)
-                has_mutated_docs[index_toBeMutated] = True
-                
-                new_docID = existing_docs.index(False)
-                existing_docs[new_docID] = True
-                existing_docs[gene[index_toBeMutated]] = False
-                
-                gene[index_toBeMutated] = new_docID
-
-        else:
-            new_gene = []
-
-            for docID in self.doctorsIds:
-                if(not existing_docs[docID]):
-                    new_gene.append(docID)
-
-            gene = new_gene            
-            
-        # if(num_toBeMutated == 0):
-        #     gene = self.createOneGene()
+        if(num_toBeMutated == 0):
+            gene = self.createOneGene()
         
         return gene
     
                 
     def mutate(self, chromosome):
         if(random.random() <= self.pm):
-            num_toBeMutated = random.randint(0 , len(chromosome) - 1)  # change at least 50% of shifts
+            num_toBeMutated = random.randint(len(chromosome) // 2 , len(chromosome) - 1)  # change at least 50% of shifts
             visited_shifts = [False] * len(chromosome)
             for i in range(num_toBeMutated):
                 index_toBeMutated = random.randint(0 , len(chromosome) - 1)
@@ -222,14 +204,15 @@ class JobScheduler:
         max_fitness = fitnesses[0]
         # print(fitnesses)
         # print("=========")
-        
+
         # elitism        
         for _ in range(int(self.elitismPercentage * self.popSize)):
             new_generation.append(sortedChromosomes.pop())
             fitnesses.pop()
+
         
         # Crossover
-        for _ in range(len(sortedChromosomes) // 2):
+        for _ in range(0 , len(sortedChromosomes) , 2):
             parent_1 , parent_2 = self.getTwoParentsForCrossOver(sortedChromosomes , fitnesses , max_fitness);
             child_1 , child_2 = self.crossOver(parent_1 , parent_2)
             new_generation.append(self.mutate(child_1))
@@ -252,16 +235,23 @@ class JobScheduler:
         # print("bestFitness: " + str(self.bestFitness))
         # print("prevBestFitness: " + str(prevBestFitness))
         # print(ch)
-        # print("pm: " + str(self.pm))
+        # print("pm: " + str(self.pm) + " pc: " + str(self.pc))
         # print("repetitaveFitnesses: " + str(self.repetitaveFitnesses))
         if(prevBestFitness == self.bestFitness):
             self.repetitaveFitnesses += 1
         else:
             self.repetitaveFitnesses = 0
 
-        if(self.repetitaveFitnesses == 50):
+        if(self.repetitaveFitnesses == 50 and self.rounds % 2 == 0):
+            self.rounds += 1
             self.pm = 0
             self.pc = 1
+            self.repetitaveFitnesses = 0
+        elif(self.repetitaveFitnesses == 50 and self.rounds % 2 == 1):
+            self.rounds += 1
+            self.pm = 1
+            self.pc = 0
+            self.repetitaveFitnesses = 0
 
         return None
     
