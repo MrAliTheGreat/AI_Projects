@@ -15,10 +15,10 @@ class JobScheduler:
         self.elitismPercentage = 0.12
         self.pc = 0.8
         self.pm = 0.2
-#         self.crossOverPoints = -1
         self.bestFitness = float("inf")
         self.repetitaveFitnesses = 0
         self.rounds = 0
+        self.numGeneration = 1
         
     def createOneGene(self):
         num_docs = random.randint(0 , self.doctors)
@@ -175,16 +175,11 @@ class JobScheduler:
         for i in range(len(fitnesses)):
             probability += ([i] * (max_fitness - fitnesses[i] + 1))
         
-        # print(probability)
-        
         idx_1 = random.randint(0 , len(probability) - 1)
         idx_2 = random.randint(0 , len(probability) - 1)
         while(idx_1 == idx_2):
             idx_2 = random.randint(0 , len(probability) - 1)
 
-        # print(probability[idx_1])
-        # print(probability[idx_2])
-        # print("=============")
         return chromosomes[probability[idx_1]] , chromosomes[probability[idx_2]]
     
     
@@ -202,8 +197,6 @@ class JobScheduler:
         fitnesses = fitnesses[::-1]
         sortedChromosomes = sortedChromosomes[::-1]
         max_fitness = fitnesses[0]
-        # print(fitnesses)
-        # print("=========")
 
         # elitism        
         for _ in range(int(self.elitismPercentage * self.popSize)):
@@ -220,47 +213,64 @@ class JobScheduler:
             
         return new_generation
     
-    def hasReachedGoal(self):
+    def hasReachedGoal(self , printBestFitnessForEachGeneration = False):
         prevBestFitness = self.bestFitness
         for chromosome in self.chromosomes:
             current_fitness = self.calculateFitness(chromosome)
             if(current_fitness < self.bestFitness):
                 self.bestFitness = current_fitness
-                # ch = chromosome
                 
             if(current_fitness == 0):
                 return chromosome
 
-        print(self.bestFitness)
-        # print("bestFitness: " + str(self.bestFitness))
-        # print("prevBestFitness: " + str(prevBestFitness))
-        # print(ch)
-        # print("pm: " + str(self.pm) + " pc: " + str(self.pc))
-        # print("repetitaveFitnesses: " + str(self.repetitaveFitnesses))
+        if(printBestFitnessForEachGeneration):
+        	print("Best fitness of generation " + str(self.numGeneration) + ": " + str(self.bestFitness))
+        	self.numGeneration += 1
+        
         if(prevBestFitness == self.bestFitness):
             self.repetitaveFitnesses += 1
         else:
             self.repetitaveFitnesses = 0
 
-        if(self.repetitaveFitnesses == 50 and self.rounds % 2 == 0):
+        if(self.repetitaveFitnesses == 60 and self.rounds % 2 == 0):
             self.rounds += 1
-            self.pm = 0
             self.pc = 1
+            self.pm = 0
             self.repetitaveFitnesses = 0
-        elif(self.repetitaveFitnesses == 50 and self.rounds % 2 == 1):
+        elif(self.repetitaveFitnesses == 60 and self.rounds % 2 == 1):
             self.rounds += 1
-            self.pm = 1
-            self.pc = 0
+            self.pc = 0.8            
+            self.pm = 0.2
             self.repetitaveFitnesses = 0
 
         return None
     
     def schedule(self):
-        while(self.hasReachedGoal() is None):
+        while(True):
+            final_chromosome = self.hasReachedGoal()
+            if(self.hasReachedGoal() is not None):
+                return final_chromosome
+            
             self.chromosomes = self.generateNewPopulation()
-        
-        return self.chromosomes
 
+
+def generate_solution(assignment , testNumber):
+    open("output" + str(testNumber) + ".txt", 'w').close()
+    for start_idx_day in range(0 , len(assignment) , 3):
+        dayResult = ""
+        for i in range(0 , 3):
+            if(len(assignment[start_idx_day + i])) == 0:
+                dayResult += "empty"
+            else:
+            	dayResult += ",".join(map(str , assignment[start_idx_day + i]))
+            
+            if(i == 2):
+                dayResult += "\n"
+            else:
+                dayResult += " "
+            
+        with open("output" + str(testNumber) + ".txt", "a") as outputFile:
+            outputFile.write(dayResult)
 
 
 def readInput(testFile) :
@@ -291,8 +301,24 @@ fileInfo1 = readInput(testFile1)
 start = time.time()
 
 scheduler = JobScheduler(fileInfo1)
-scheduler.schedule()
+result_assignment_test_1 = scheduler.schedule()
 
 end = time.time()
 
 print("test 1: ", '%.2f'%(end - start), 'sec')
+
+generate_solution(result_assignment_test_1 , 1);
+
+
+fileInfo2 = readInput(testFile2)
+
+start = time.time()
+
+scheduler = JobScheduler(fileInfo2)
+result_assignment_test_2 = scheduler.schedule()
+
+end = time.time()
+
+print("test 2: ", '%.2f'%(end - start), 'sec')
+
+generate_solution(result_assignment_test_2 , 2);
