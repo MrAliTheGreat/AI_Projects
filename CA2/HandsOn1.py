@@ -1,6 +1,7 @@
 import time
 import random
 import bisect
+import os.path
 
 class JobScheduler:
     def __init__(self, fileInfo):
@@ -255,7 +256,9 @@ class JobScheduler:
 
 
 def generate_solution(assignment , testNumber):
-    open("output" + str(testNumber) + ".txt", 'w').close()
+    if(os.path.isfile("output" + str(testNumber) + ".txt")):
+    	open("output" + str(testNumber) + ".txt", 'w').close()
+    
     for start_idx_day in range(0 , len(assignment) , 3):
         dayResult = ""
         for i in range(0 , 3):
