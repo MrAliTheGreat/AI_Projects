@@ -30,10 +30,11 @@ class Player:
         """
         prints info of the player
         """
-        print(f"{self.name}'s cards: ", end='')
-        for c in self.cards:
-            print(f'{c}, ', end='')
-        print(f'sum: {sum(self.cards)}')
+        # print(f"{self.name}'s cards: ", end='')
+        # for c in self.cards:
+            # print(f'{c}, ', end='')
+        # print(f'sum: {sum(self.cards)}')
+        pass
     
     def get_margin(self):
         """
@@ -99,14 +100,14 @@ class Player:
         target: (Player obj) the player whos last card is about to be erased
         """
         if (len(target.cards) == 0):
-            print(f'{target.name} has no more eraseble cards!')
+            # print(f'{target.name} has no more eraseble cards!')
             return
         if (self.erases_remaining > 0):
             self.erases_remaining -= 1
             card = target.cards.pop(-1)
-            print(f'{self.name} erased {card} from {target.name}\'s deck!')
+            # print(f'{self.name} erased {card} from {target.name}\'s deck!')
             return
-        print(f'{self.name} has no more erases remaining!')
+        # print(f'{self.name} has no more erases remaining!')
 
     def get_player_cards(self):
         return self.cards
@@ -149,7 +150,7 @@ class Blacksin:
             card = self.deck.pop(0)
             self.seen_cards.append(card)
             return card
-        print('The deck is empty! ending game...')
+        # print('The deck is empty! ending game...')
         self.opponent.has_stopped = True
         self.player.has_stopped = True
         return -1
@@ -178,18 +179,18 @@ class Blacksin:
             opponent = self.player
         if (_input == 'stop' or _input == 's'):
             player.has_stopped = True
-            print(f'{player.name} has stopped')
+            # print(f'{player.name} has stopped')
         elif (_input == 'draw' or _input == 'd'):
             card = self.draw_card()
             if (card == -1): return True
             player.draw_card(card)
-            print(f'{player.name} drawed a card: {card}')
+            # print(f'{player.name} drawed a card: {card}')
         elif ((_input == 'erase_self' or _input == 'es')):
             player.erase(player)
         elif ((_input == 'erase_opponent' or _input == 'eo')):
             player.erase(opponent)
         else:
-            print('ERROR: unknown command')
+            # print('ERROR: unknown command')
             return False
         return True
 
@@ -197,7 +198,8 @@ class Blacksin:
     def get_player_input(self):
         minimaxTree = MinimaxTree()
         root = MinimaxNode(self.player , self.opponent , self.deck)
-        self.handle_input(minimaxTree.minimax(root) , self.player)
+        player_input = minimaxTree.minimax(root)
+        self.handle_input(player_input , self.player)
             
     def opponent_play(self):
         """
@@ -227,33 +229,34 @@ class Blacksin:
         opponent_win_condition_1 = player_margin < 0 and opponent_margin >= 0
         opponent_win_condition_2 = opponent_margin >=0 and player_margin >= 0 and player_margin > opponent_margin
         if (player_win_condition_1 or player_win_condition_2):
-            print(f'the winner is the {self.player.name}!')
+            # print(f'the winner is the {self.player.name}!')
             return 1
         elif(draw_condition_1 or draw_condition_2):
-            print('the game ends in a draw!')
+            # print('the game ends in a draw!')
             return 0
         elif(opponent_win_condition_1 or opponent_win_condition_2):
-            print(f'the winner is the {self.opponent.name}!')
+            # print(f'the winner is the {self.opponent.name}!')
             return -1
         else:
-            print('an error has accurred! exiting...')
+            # print('an error has accurred! exiting...')
             exit()
 
     def print_deck(self):
-        """
-        prints the current deck of the game
-        """
-        print('full deck: [top] ', end='')
-        for i in self.deck:
-            print(i, end=' ')
-        print('[bottom]')
+        # """
+        # prints the current deck of the game
+        # """
+        # print('full deck: [top] ', end='')
+        # for i in self.deck:
+        #     print(i, end=' ')
+        # print('[bottom]')
+        pass
 
     def run(self):
         """
         main function to run the game with
         """
-        print('\nstarting game... shuffling... handing out cards...')
-        print(f'remember, you are aiming for nearest to: {self.target}')
+        # print('\nstarting game... shuffling... handing out cards...')
+        # print(f'remember, you are aiming for nearest to: {self.target}')
         self.print_deck()
         self.handout_cards()
         turn = 0
@@ -263,14 +266,14 @@ class Blacksin:
                     self.opponent.print_info()
                     self.player.print_info()
                     self.get_player_input()
-                    print()
+                    # print()
             else:
                 if (not self.opponent.has_stopped):
-                    print('opponent playing...')
+                    # print('opponent playing...')
                     self.opponent_play()
-                    print()
+                    # print()
             turn = 1 - turn
-        print('\nand the winner is...')
+        # print('\nand the winner is...')
         return self.check_for_winners()
 
 
@@ -284,14 +287,14 @@ class MinimaxNode():
 
 class MinimaxTree():
     def __init__(self):
-        self.maxDepth = 5
+        self.maxDepth = 3
 
     def drawCard(self , node):
         if (len(node.deck) > 0):
             card = node.deck.pop(0)
             return card
         
-        print('The deck is empty! ending game MINIMAX...')
+        # print('The deck is empty! ending game MINIMAX...')
         node.opponent.has_stopped = True
         node.player.has_stopped = True
         return -1
@@ -306,52 +309,103 @@ class MinimaxTree():
 
         if (move == 's'):     
             player.has_stopped = True
-            print(f'MINIMAX: {player.name} has stopped')
+            # print(f'MINIMAX: {player.name} has stopped depth: ')
         
         elif (move == 'd'):
-            if(player.has_stopped and opponent.has_stopped):
+            if(player.has_stopped):
                 return None
             
             card = self.drawCard(node)
             if (card == -1): return node
             player.draw_card(card)
-            print(f'MINIMAX: {player.name} drawed a card: {card}')
+            # print(f'MINIMAX: {player.name} drawed a card: {card} depth: ')
         
         elif (move == 'es'):
-            if(len(player.cards) == 0 or player.erases_remaining <= 0):
+            if(len(player.cards) == 0 or player.erases_remaining <= 0 or player.has_stopped):
                 return None
             
             player.erase(player)
         
         elif (move == 'eo'):
-            if(len(opponent.cards) == 0 or player.erases_remaining <= 0):
+            if(len(opponent.cards) == 0 or player.erases_remaining <= 0 or player.has_stopped):
                 return None
             
             player.erase(opponent)
         
         else:
-            print('ERROR: unknown command in MINIMAX')
+            # print('ERROR: unknown command in MINIMAX')
             return None
         
         return node
 
 
-    def evaluateFunction(self , node):
-        value = 41 - sum(node.player.cards)
-        if(value == 0):
-            return float("inf")
+    # def evaluateFunction(self , node):
+    #     playerCardsSum = sum(node.player.cards)
+    #     opponentCardsSum = sum(node.opponent.cards)
 
-        return value
+    #     playerValue = playerCardsSum
+    #     if(41 - playerValue == 0):
+    #         return float("inf")
+    #     elif(41 - playerValue < 0):
+    #         playerValue = 41 - playerValue
+
+    #     opponentValue = 41 - sum(node.opponent.cards)
+    #     if(opponentValue == 0):
+    #         return float("-inf")
+    #     elif(opponentValue < 0):
+    #         opponentValue = -opponentValue
+
+
+    #     return playerValue + opponentValue
+
+
+    def evaluateFunction(self , node):
+        playerCardsSum = sum(node.player.cards)
+        opponentCardsSum = sum(node.opponent.cards)
+        # print(playerCardsSum)
+        # print(opponentCardsSum)
+
+        playerValue = playerCardsSum
+        opponentValue = opponentCardsSum
+
+        if(playerValue == 41):
+            return float("inf")
+        if(opponentValue == 41):
+            return float("-inf")
+
+        if(playerValue < 41 and opponentValue < 41):
+            if(playerValue >= opponentValue):
+                final = playerValue
+            else:
+                final = playerValue - (opponentValue - playerValue)
+
+        elif(playerValue > 41 and opponentValue < 41):
+            final = (41 - playerValue) * 50
+
+        elif(playerValue < 41 and opponentValue > 41):
+            final = playerValue + opponentValue - 41
+
+        else:
+            if(playerValue <= opponentValue):
+                final = 41 - playerValue
+            else:
+                distP = playerValue - 41; distO = opponentValue - 41
+                final = -(distP + (distP - distO))
+
+        # print(final)
+        # print("==============")
+        return final    
+
 
 
     def minimax(self , currentNode , depth=0):
         moves = ["s" , "d" , "es" , "eo"]
 
-        if depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped):
+        if(depth > self.maxDepth):
             return self.evaluateFunction(currentNode)
 
         # Player ==> Maximize
-        if depth % 2 == 0:
+        if(depth % 2 == 0):
             maxTotal = float("-inf")
             for move in moves:
                 newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "player")
@@ -359,7 +413,7 @@ class MinimaxTree():
                     continue
                 
                 moveValue = self.minimax(newNode , depth + 1)
-                if moveValue > maxTotal:
+                if moveValue >= maxTotal:
                     maxTotal = moveValue
                     bestMove = move
 
@@ -382,6 +436,30 @@ class MinimaxTree():
 
             return minTotal
 
+totalPlayerWins = 0; totalOpponentWins = 0; totalDraws = 0
+for _ in range(100):
+    playerWins = 0; opponentWins = 0; draws = 0
+    for _ in range(20):
+        game = Blacksin(deck_count=21)
+        result = game.run()
+        if(result == 1):
+            playerWins += 1
+        elif(result == -1):
+            opponentWins += 1
+        else:
+            draws += 1
+        # print("playerWins: " + str(playerWins) + " opponentWins: " + str(opponentWins) + " draws: " + str(draws))
 
-game = Blacksin(deck_count=21)
-result = game.run()
+    if(playerWins > opponentWins):
+        print("player Wins!")
+        totalPlayerWins += 1
+    elif(playerWins < opponentWins):
+        print("opponent Wins!")
+        totalOpponentWins += 1
+    else:
+        print("It's a draw!")
+        totalDraws += 1
+    print("playerWins: " + str(playerWins) + " opponentWins: " + str(opponentWins) + " draws: " + str(draws))
+
+print("============================\n")
+print("totalPlayerWins: " + str(totalPlayerWins) + " totalOpponentWins: " + str(totalOpponentWins) + " totalDraws: " + str(totalDraws))
