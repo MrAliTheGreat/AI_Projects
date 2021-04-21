@@ -1,5 +1,6 @@
 import random
 import copy
+import time
 
 class Player:
     def __init__(self, name, num_of_cards):
@@ -115,11 +116,6 @@ class Player:
         return self.erases_remaining
 
 
-
-
-
-
-
 class Blacksin:
     def __init__(self, deck_count=21):
         """
@@ -193,15 +189,14 @@ class Blacksin:
             return False
         return True
 
-
     def get_player_input(self):
         minimaxTree = MinimaxTree()
         root = MinimaxNode(self.player , self.opponent , self.deck)
-        player_input = minimaxTree.minimax(root)
 
-        # print("playerMove: " + player_input)
+        # player_input = minimaxTree.minimax(root)
+        player_input = minimaxTree.minimaxWithPruning(root , float("-inf") , float("inf"))
 
-        self.handle_input(player_input , self.player)
+        self.handle_input(player_input , self.player)        
             
     def opponent_play(self):
         """
@@ -212,7 +207,6 @@ class Blacksin:
         except:
             opponent_input = 'stop'
 
-        # print("opponentMove: " + opponent_input)
         self.handle_input(opponent_input, self.opponent)
 
     def check_for_winners(self):
@@ -266,10 +260,8 @@ class Blacksin:
         while(not self.player.has_stopped or not self.opponent.has_stopped):
             if (turn == 0):
                 if (not self.player.has_stopped):
-                    # self.print_deck()
                     # self.player.print_info()
                     # self.opponent.print_info()
-                    # print("#######################")
                     self.get_player_input()
                     # print()
             else:
@@ -292,21 +284,22 @@ class MinimaxNode():
 
 class MinimaxTree():
     def __init__(self):
-        self.maxDepth = 5
+        self.maxDepth = 6
         self.playerDistRatio = 10
         self.playerErasesRatio = 0
         self.opponentDistRatio = 0.1
         self.opponentErasesRatio = 20
 
+
     def drawCard(self , node):
         if (len(node.deck) > 0):
             card = node.deck.pop(0)
             return card
-        
-        # print('The deck is empty! ending game MINIMAX...')
+
         node.opponent.has_stopped = True
         node.player.has_stopped = True
         return -1
+
 
     def makeNewNodeByMove(self , node , move , turn):
         if (turn == "player"):
@@ -316,12 +309,8 @@ class MinimaxTree():
             player = node.opponent
             opponent = node.player
 
-        if (move == 's'):
-            # if(player.has_stopped):
-            #     return None 
-            
+        if (move == 's'):            
             player.has_stopped = True
-            # print(f'MINIMAX: {player.name} has stopped depth: ')
         
         elif (move == 'd'):
             if(player.has_stopped):
@@ -330,7 +319,6 @@ class MinimaxTree():
             card = self.drawCard(node)
             if (card == -1): return node
             player.draw_card(card)
-            # print(f'MINIMAX: {player.name} drawed a card: {card} depth: ')
         
         elif (move == 'es'):
             if(len(player.cards) == 0 or player.erases_remaining <= 0 or player.has_stopped):
@@ -345,91 +333,15 @@ class MinimaxTree():
             player.erase(opponent)
         
         else:
-            # print('ERROR: unknown command in MINIMAX')
             return None
         
         return node
 
 
-    # def evaluateFunction(self , node):
-    #     playerCardsSum = sum(node.player.cards)
-    #     opponentCardsSum = sum(node.opponent.cards)
-
-    #     playerValue = playerCardsSum
-    #     if(41 - playerValue == 0):
-    #         return float("inf")
-    #     elif(41 - playerValue < 0):
-    #         playerValue = 41 - playerValue
-
-    #     opponentValue = 41 - sum(node.opponent.cards)
-    #     if(opponentValue == 0):
-    #         return float("-inf")
-    #     elif(opponentValue < 0):
-    #         opponentValue = -opponentValue
-
-
-    #     return playerValue + 0.1*opponentValue
-
-
-    # def evaluateFunction(self , node):
-    #     playerCardsSum = sum(node.player.cards)
-    #     opponentCardsSum = sum(node.opponent.cards)
-    #     # print(playerCardsSum)
-    #     # print(opponentCardsSum)
-
-    #     playerValue = playerCardsSum
-    #     opponentValue = opponentCardsSum
-
-    #     if(playerValue == 41):
-    #         return float("inf")
-    #     if(opponentValue == 41):
-    #         return float("-inf")
-
-    #     if(playerValue < 41 and opponentValue < 41):
-    #         if(playerValue >= opponentValue):
-    #             final = playerValue
-    #         else:
-    #             final = playerValue - (opponentValue - playerValue)
-
-    #     elif(playerValue > 41 and opponentValue < 41):
-    #         final = (41 - playerValue) * 50
-
-    #     elif(playerValue < 41 and opponentValue > 41):
-    #         final = playerValue + opponentValue - 41
-
-    #     else:
-    #         if(playerValue <= opponentValue):
-    #             final = 41 - playerValue
-    #         else:
-    #             distP = playerValue - 41; distO = opponentValue - 41
-    #             final = -(distP + (distP - distO))
-
-    #     # print(final)
-    #     # print("==============")
-    #     return final    
-
-
-    # def evaluateFunction(self , node):
-    #     playerValue = sum(node.player.cards)
-    #     if(playerValue == 41):
-    #         return float("inf")
-    #     elif(playerValue > 41):
-    #         playerValue = 41 - playerValue
-
-    #     opponentValue = 41 - sum(node.opponent.cards)
-    #     if(opponentValue == 0):
-    #         return -10 ** 10
-    #     elif(opponentValue < 0):
-    #         opponentValue = -opponentValue
-
-    #     return self.playerDistRatio * playerValue + self.playerErasesRatio * node.player.erases_remaining  + \
-    #            self.opponentDistRatio * opponentValue - self.opponentErasesRatio * node.opponent.erases_remaining
-
-
     def evaluateFunction(self , node):
         playerValue = sum(node.player.cards)
         if(playerValue == 41):
-            return float("inf")
+            return 10 ** 10
         elif(playerValue > 41):
             playerValue = 41 - playerValue
 
@@ -446,95 +358,113 @@ class MinimaxTree():
     def minimax(self , currentNode , depth=0):
         moves = ["s" , "d" , "es" , "eo"]
 
-        # print("Depth: " + str(depth) , end=" ::: ")
-        # print("Player Cards: " , end="")
-        # print(currentNode.player.cards , end=" === ")
-        # print("Opponent Cards: " , end="")
-        # print(currentNode.opponent.cards)
-        # print("Deck: " , end="")
-        # print(currentNode.deck)
-
         if(depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped)):
-            val = self.evaluateFunction(currentNode)
-            # print("EvaluateFunction: " + str(val))
-            return val
+            return self.evaluateFunction(currentNode)
 
-        # Player ==> Maximize
-        if(depth % 2 == 0):
+        
+        if(depth % 2 == 0):  # Player: Maximize
             maxTotal = float("-inf")
             for move in moves:
                 newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "player")
                 if(newNode is None):
                     continue
-                
-                # print("*************************")
-                # print("Before Player: " + move)
-                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
 
                 moveValue = self.minimax(newNode , depth + 1)
-
-                # print("=========================")
-                # print("After Move Player: " + move + " MoveValue: " + str(moveValue))
-                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
-
-                if moveValue > maxTotal:
+                if(moveValue > maxTotal):
                     maxTotal = moveValue
                     bestMove = move
 
-            if depth == 0:
-                # print("maxTotalTotal!!!!!!!!!! : " + str(maxTotal) + " bestMove: " + bestMove)
+            if(depth == 0):
                 return bestMove
             else:
                 return maxTotal
 
-        # Opponent ==> Minimize
-        else:
+        else:  # Opponent: Minimize
             minTotal = float("inf")
             for move in moves:
                 newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "opponent")              
                 if(newNode is None):
                     continue
-                
-                # print("@@@@@@@@@@@@@@@@@@@@@@@@@")
-                # print("Before Opponent: " + move)
-                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
 
                 moveValue = self.minimax(newNode , depth + 1)
-
-                # print("+++++++++++++++++++++++++")
-                # print("After Move Opponent: " + move + " MoveValue: " + str(moveValue))
-                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
-
-                if moveValue < minTotal:
+                if(moveValue < minTotal):
                     minTotal = moveValue
-
 
             return minTotal
 
-totalPlayerWins = 0; totalOpponentWins = 0; totalDraws = 0
-for _ in range(10):
-    playerWins = 0; opponentWins = 0; draws = 0
-    for _ in range(100):
-        game = Blacksin(deck_count=21)
-        result = game.run()
-        if(result == 1):
-            playerWins += 1
-        elif(result == -1):
-            opponentWins += 1
-        else:
-            draws += 1
-        # print("playerWins: " + str(playerWins) + " opponentWins: " + str(opponentWins) + " draws: " + str(draws))
 
-    if(playerWins > opponentWins):
-        print("player Wins!")
-        totalPlayerWins += 1
-    elif(playerWins < opponentWins):
-        print("opponent Wins!")
-        totalOpponentWins += 1
+    def minimaxWithPruning(self , currentNode , alpha , beta , depth=0):
+        moves = ["s" , "d" , "es" , "eo"]
+
+        if(depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped)):
+            return self.evaluateFunction(currentNode)
+
+
+        if(depth % 2 == 0):  # Player: Maximize
+            maxTotal = float("-inf")
+            for move in moves:
+                newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "player")
+                if(newNode is None):
+                    continue
+
+                moveValue = self.minimaxWithPruning(newNode , alpha , beta , depth + 1)
+                if(moveValue > beta): # Pruning
+                	return moveValue
+                
+                if(moveValue > maxTotal):
+                    maxTotal = moveValue
+                    bestMove = move
+                    alpha = max(alpha , maxTotal) # Pruning
+
+            if(depth == 0):
+                return bestMove
+            else:
+                return maxTotal
+
+        else:  # Opponent: Minimize
+            minTotal = float("inf")
+            for move in moves:
+                newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "opponent")              
+                if(newNode is None):
+                    continue
+
+                moveValue = self.minimaxWithPruning(newNode , alpha , beta , depth + 1)
+                if(moveValue < alpha): # Pruning
+                	return moveValue
+
+                if(moveValue < minTotal):
+                    minTotal = moveValue
+                    beta = min(beta , minTotal) # Pruning
+
+            return minTotal            
+
+
+
+
+
+playerWins = 0; opponentWins = 0; draws = 0
+
+tic = time.time()
+for _ in range(500):
+    game = Blacksin(deck_count=21)
+    result = game.run()
+    if(result == 1):
+        playerWins += 1
+    elif(result == -1):
+        opponentWins += 1
     else:
-        print("It's a draw!")
-        totalDraws += 1
-    print("playerWins: " + str(playerWins) + " opponentWins: " + str(opponentWins) + " draws: " + str(draws))
+        draws += 1
+toc = time.time()
 
-print("============================\n")
-print("totalPlayerWins: " + str(totalPlayerWins) + " totalOpponentWins: " + str(totalOpponentWins) + " totalDraws: " + str(totalDraws))
+if(playerWins > opponentWins):
+    print("player Wins!")
+elif(playerWins < opponentWins):
+    print("opponent Wins!")
+else:
+    print("It's a draw!")
+
+print("Minimax with pruning depth 6 (500 runs)")
+print("Number of player wins: " + str(playerWins))
+print("Number of opponent wins: " + str(opponentWins))
+print("Number of draws: " + str(draws))
+print("Time: " + str(toc - tic) + " s")
