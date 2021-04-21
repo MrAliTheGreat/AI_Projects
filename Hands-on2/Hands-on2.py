@@ -198,6 +198,9 @@ class Blacksin:
         minimaxTree = MinimaxTree()
         root = MinimaxNode(self.player , self.opponent , self.deck)
         player_input = minimaxTree.minimax(root)
+
+        # print("playerMove: " + player_input)
+
         self.handle_input(player_input , self.player)
             
     def opponent_play(self):
@@ -243,14 +246,13 @@ class Blacksin:
             exit()
 
     def print_deck(self):
-        # """
-        # prints the current deck of the game
-        # """
-        # print('full deck: [top] ', end='')
-        # for i in self.deck:
-        #     print(i, end=' ')
-        # print('[bottom]')
-        pass
+        """
+        prints the current deck of the game
+        """
+        print('full deck: [top] ', end='')
+        for i in self.deck:
+            print(i, end=' ')
+        print('[bottom]')
 
     def run(self):
         """
@@ -258,14 +260,16 @@ class Blacksin:
         """
         # print('\nstarting game... shuffling... handing out cards...')
         # print(f'remember, you are aiming for nearest to: {self.target}')
-        self.print_deck()
+        # self.print_deck()
         self.handout_cards()
         turn = 0
         while(not self.player.has_stopped or not self.opponent.has_stopped):
             if (turn == 0):
                 if (not self.player.has_stopped):
-                    # self.opponent.print_info()
+                    # self.print_deck()
                     # self.player.print_info()
+                    # self.opponent.print_info()
+                    # print("#######################")
                     self.get_player_input()
                     # print()
             else:
@@ -288,11 +292,11 @@ class MinimaxNode():
 
 class MinimaxTree():
     def __init__(self):
-        self.maxDepth = 2
-        self.playerDistRatio = 0.70
-        self.opponentDistRatio = 0.01
-        self.playerErasesRatio = 0.01
-        self.opponentErasesRatio = 0.28
+        self.maxDepth = 5
+        self.playerDistRatio = 10
+        self.playerErasesRatio = 0
+        self.opponentDistRatio = 0.1
+        self.opponentErasesRatio = 20
 
     def drawCard(self , node):
         if (len(node.deck) > 0):
@@ -405,27 +409,40 @@ class MinimaxTree():
     #     return final    
 
 
-    def evaluateFunction(self , node):
-        playerCardsSum = sum(node.player.cards)
-        opponentCardsSum = sum(node.opponent.cards)
+    # def evaluateFunction(self , node):
+    #     playerValue = sum(node.player.cards)
+    #     if(playerValue == 41):
+    #         return float("inf")
+    #     elif(playerValue > 41):
+    #         playerValue = 41 - playerValue
 
-        playerValue = playerCardsSum
-        if(41 - playerValue == 0):
+    #     opponentValue = 41 - sum(node.opponent.cards)
+    #     if(opponentValue == 0):
+    #         return -10 ** 10
+    #     elif(opponentValue < 0):
+    #         opponentValue = -opponentValue
+
+    #     return self.playerDistRatio * playerValue + self.playerErasesRatio * node.player.erases_remaining  + \
+    #            self.opponentDistRatio * opponentValue - self.opponentErasesRatio * node.opponent.erases_remaining
+
+
+    def evaluateFunction(self , node):
+        playerValue = sum(node.player.cards)
+        if(playerValue == 41):
             return float("inf")
-        elif(41 - playerValue < 0):
+        elif(playerValue > 41):
             playerValue = 41 - playerValue
 
-        opponentValue = 41 - sum(node.opponent.cards)
-        if(opponentValue == 0):
+        opponentValue = sum(node.opponent.cards)
+        if(opponentValue == 41):
             return -10 ** 10
-        elif(opponentValue < 0):
-            opponentValue = -opponentValue
+        elif(opponentValue > 41):
+            opponentValue = 41 - opponentValue
 
+        return (self.playerDistRatio * playerValue + self.playerErasesRatio * node.player.erases_remaining) - \
+               (self.opponentDistRatio * opponentValue + self.opponentErasesRatio * node.opponent.erases_remaining)    
 
-        return self.playerDistRatio * playerValue + self.playerErasesRatio * node.player.erases_remaining + \
-               self.opponentDistRatio * opponentValue - self.opponentErasesRatio * node.opponent.erases_remaining
-
-
+    
     def minimax(self , currentNode , depth=0):
         moves = ["s" , "d" , "es" , "eo"]
 
@@ -435,7 +452,7 @@ class MinimaxTree():
         # print("Opponent Cards: " , end="")
         # print(currentNode.opponent.cards)
         # print("Deck: " , end="")
-        # print(currentNode.deck)                
+        # print(currentNode.deck)
 
         if(depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped)):
             val = self.evaluateFunction(currentNode)
@@ -447,18 +464,25 @@ class MinimaxTree():
             maxTotal = float("-inf")
             for move in moves:
                 newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "player")
-                # print("=========================")
-                # print("Current Move Player: " + move)
                 if(newNode is None):
                     continue
                 
+                # print("*************************")
+                # print("Before Player: " + move)
+                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
+
                 moveValue = self.minimax(newNode , depth + 1)
+
+                # print("=========================")
+                # print("After Move Player: " + move + " MoveValue: " + str(moveValue))
+                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
+
                 if moveValue > maxTotal:
                     maxTotal = moveValue
                     bestMove = move
 
             if depth == 0:
-                # print("maxTotal!!!!!!!!!! : " + str(maxTotal) + " bestMove: " + bestMove)
+                # print("maxTotalTotal!!!!!!!!!! : " + str(maxTotal) + " bestMove: " + bestMove)
                 return bestMove
             else:
                 return maxTotal
@@ -467,13 +491,20 @@ class MinimaxTree():
         else:
             minTotal = float("inf")
             for move in moves:
-                newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "opponent")
-                # print("+++++++++++++++++++++++++")
-                # print("Current Move Opponent: " + move)                
+                newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "opponent")              
                 if(newNode is None):
                     continue
                 
+                # print("@@@@@@@@@@@@@@@@@@@@@@@@@")
+                # print("Before Opponent: " + move)
+                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
+
                 moveValue = self.minimax(newNode , depth + 1)
+
+                # print("+++++++++++++++++++++++++")
+                # print("After Move Opponent: " + move + " MoveValue: " + str(moveValue))
+                # print("Depth: " + str(depth) + " child_Number: " + str(moves.index(move) + 1))
+
                 if moveValue < minTotal:
                     minTotal = moveValue
 
@@ -481,9 +512,9 @@ class MinimaxTree():
             return minTotal
 
 totalPlayerWins = 0; totalOpponentWins = 0; totalDraws = 0
-for _ in range(100):
+for _ in range(10):
     playerWins = 0; opponentWins = 0; draws = 0
-    for _ in range(25):
+    for _ in range(100):
         game = Blacksin(deck_count=21)
         result = game.run()
         if(result == 1):
