@@ -30,11 +30,10 @@ class Player:
         """
         prints info of the player
         """
-        # print(f"{self.name}'s cards: ", end='')
-        # for c in self.cards:
-            # print(f'{c}, ', end='')
-        # print(f'sum: {sum(self.cards)}')
-        pass
+        print(f"{self.name}'s cards: ", end='')
+        for c in self.cards:
+            print(f'{c}, ', end='')
+        print(f'sum: {sum(self.cards)}')
     
     def get_margin(self):
         """
@@ -209,6 +208,8 @@ class Blacksin:
             opponent_input = self.opponent.cpu_play(self.seen_cards, self.deck, self.player.cards)
         except:
             opponent_input = 'stop'
+
+        # print("opponentMove: " + opponent_input)
         self.handle_input(opponent_input, self.opponent)
 
     def check_for_winners(self):
@@ -218,8 +219,8 @@ class Blacksin:
         -----------
         (int) returns 1 if player wins, 0 if draw and -1 if opponent wins
         """
-        self.opponent.print_info()
-        self.player.print_info()
+        # self.opponent.print_info()
+        # self.player.print_info()
         player_margin = self.player.get_margin()
         opponent_margin = self.opponent.get_margin()
         player_win_condition_1 = opponent_margin < 0 and player_margin >= 0
@@ -263,8 +264,8 @@ class Blacksin:
         while(not self.player.has_stopped or not self.opponent.has_stopped):
             if (turn == 0):
                 if (not self.player.has_stopped):
-                    self.opponent.print_info()
-                    self.player.print_info()
+                    # self.opponent.print_info()
+                    # self.player.print_info()
                     self.get_player_input()
                     # print()
             else:
@@ -287,7 +288,7 @@ class MinimaxNode():
 
 class MinimaxTree():
     def __init__(self):
-        self.maxDepth = 3
+        self.maxDepth = 2
 
     def drawCard(self , node):
         if (len(node.deck) > 0):
@@ -307,7 +308,10 @@ class MinimaxTree():
             player = node.opponent
             opponent = node.player
 
-        if (move == 's'):     
+        if (move == 's'):
+            # if(player.has_stopped):
+            #     return None 
+            
             player.has_stopped = True
             # print(f'MINIMAX: {player.name} has stopped depth: ')
         
@@ -339,76 +343,88 @@ class MinimaxTree():
         return node
 
 
-    # def evaluateFunction(self , node):
-    #     playerCardsSum = sum(node.player.cards)
-    #     opponentCardsSum = sum(node.opponent.cards)
-
-    #     playerValue = playerCardsSum
-    #     if(41 - playerValue == 0):
-    #         return float("inf")
-    #     elif(41 - playerValue < 0):
-    #         playerValue = 41 - playerValue
-
-    #     opponentValue = 41 - sum(node.opponent.cards)
-    #     if(opponentValue == 0):
-    #         return float("-inf")
-    #     elif(opponentValue < 0):
-    #         opponentValue = -opponentValue
-
-
-    #     return playerValue + opponentValue
-
-
     def evaluateFunction(self , node):
         playerCardsSum = sum(node.player.cards)
         opponentCardsSum = sum(node.opponent.cards)
-        # print(playerCardsSum)
-        # print(opponentCardsSum)
 
         playerValue = playerCardsSum
-        opponentValue = opponentCardsSum
-
-        if(playerValue == 41):
+        if(41 - playerValue == 0):
             return float("inf")
-        if(opponentValue == 41):
+        elif(41 - playerValue < 0):
+            playerValue = 41 - playerValue
+
+        opponentValue = 41 - sum(node.opponent.cards)
+        if(opponentValue == 0):
             return float("-inf")
+        elif(opponentValue < 0):
+            opponentValue = -opponentValue
 
-        if(playerValue < 41 and opponentValue < 41):
-            if(playerValue >= opponentValue):
-                final = playerValue
-            else:
-                final = playerValue - (opponentValue - playerValue)
 
-        elif(playerValue > 41 and opponentValue < 41):
-            final = (41 - playerValue) * 50
+        return playerValue + 0.1*opponentValue
 
-        elif(playerValue < 41 and opponentValue > 41):
-            final = playerValue + opponentValue - 41
 
-        else:
-            if(playerValue <= opponentValue):
-                final = 41 - playerValue
-            else:
-                distP = playerValue - 41; distO = opponentValue - 41
-                final = -(distP + (distP - distO))
+    # def evaluateFunction(self , node):
+    #     playerCardsSum = sum(node.player.cards)
+    #     opponentCardsSum = sum(node.opponent.cards)
+    #     # print(playerCardsSum)
+    #     # print(opponentCardsSum)
 
-        # print(final)
-        # print("==============")
-        return final    
+    #     playerValue = playerCardsSum
+    #     opponentValue = opponentCardsSum
+
+    #     if(playerValue == 41):
+    #         return float("inf")
+    #     if(opponentValue == 41):
+    #         return float("-inf")
+
+    #     if(playerValue < 41 and opponentValue < 41):
+    #         if(playerValue >= opponentValue):
+    #             final = playerValue
+    #         else:
+    #             final = playerValue - (opponentValue - playerValue)
+
+    #     elif(playerValue > 41 and opponentValue < 41):
+    #         final = (41 - playerValue) * 50
+
+    #     elif(playerValue < 41 and opponentValue > 41):
+    #         final = playerValue + opponentValue - 41
+
+    #     else:
+    #         if(playerValue <= opponentValue):
+    #             final = 41 - playerValue
+    #         else:
+    #             distP = playerValue - 41; distO = opponentValue - 41
+    #             final = -(distP + (distP - distO))
+
+    #     # print(final)
+    #     # print("==============")
+    #     return final    
 
 
 
     def minimax(self , currentNode , depth=0):
         moves = ["s" , "d" , "es" , "eo"]
 
-        if(depth > self.maxDepth):
-            return self.evaluateFunction(currentNode)
+        # print("Depth: " + str(depth) , end=" ::: ")
+        # print("Player Cards: " , end="")
+        # print(currentNode.player.cards , end=" === ")
+        # print("Opponent Cards: " , end="")
+        # print(currentNode.opponent.cards)
+        # print("Deck: " , end="")
+        # print(currentNode.deck)                
+
+        if(depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped)):
+            val = self.evaluateFunction(currentNode)
+            # print("EvaluateFunction: " + str(val))
+            return val
 
         # Player ==> Maximize
         if(depth % 2 == 0):
             maxTotal = float("-inf")
             for move in moves:
                 newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "player")
+                # print("=========================")
+                # print("Current Move Player: " + move)
                 if(newNode is None):
                     continue
                 
@@ -418,6 +434,7 @@ class MinimaxTree():
                     bestMove = move
 
             if depth == 0:
+                # print("maxTotal!!!!!!!!!! : " + str(maxTotal) + " bestMove: " + bestMove)
                 return bestMove
             else:
                 return maxTotal
@@ -427,6 +444,8 @@ class MinimaxTree():
             minTotal = float("inf")
             for move in moves:
                 newNode = self.makeNewNodeByMove(copy.deepcopy(currentNode) , move , "opponent")
+                # print("+++++++++++++++++++++++++")
+                # print("Current Move Opponent: " + move)                
                 if(newNode is None):
                     continue
                 
@@ -439,7 +458,7 @@ class MinimaxTree():
 totalPlayerWins = 0; totalOpponentWins = 0; totalDraws = 0
 for _ in range(100):
     playerWins = 0; opponentWins = 0; draws = 0
-    for _ in range(20):
+    for _ in range(25):
         game = Blacksin(deck_count=21)
         result = game.run()
         if(result == 1):
