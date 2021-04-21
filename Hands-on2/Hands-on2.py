@@ -289,6 +289,10 @@ class MinimaxNode():
 class MinimaxTree():
     def __init__(self):
         self.maxDepth = 2
+        self.playerDistRatio = 0.70
+        self.opponentDistRatio = 0.01
+        self.playerErasesRatio = 0.01
+        self.opponentErasesRatio = 0.28
 
     def drawCard(self , node):
         if (len(node.deck) > 0):
@@ -343,24 +347,24 @@ class MinimaxTree():
         return node
 
 
-    def evaluateFunction(self , node):
-        playerCardsSum = sum(node.player.cards)
-        opponentCardsSum = sum(node.opponent.cards)
+    # def evaluateFunction(self , node):
+    #     playerCardsSum = sum(node.player.cards)
+    #     opponentCardsSum = sum(node.opponent.cards)
 
-        playerValue = playerCardsSum
-        if(41 - playerValue == 0):
-            return float("inf")
-        elif(41 - playerValue < 0):
-            playerValue = 41 - playerValue
+    #     playerValue = playerCardsSum
+    #     if(41 - playerValue == 0):
+    #         return float("inf")
+    #     elif(41 - playerValue < 0):
+    #         playerValue = 41 - playerValue
 
-        opponentValue = 41 - sum(node.opponent.cards)
-        if(opponentValue == 0):
-            return float("-inf")
-        elif(opponentValue < 0):
-            opponentValue = -opponentValue
+    #     opponentValue = 41 - sum(node.opponent.cards)
+    #     if(opponentValue == 0):
+    #         return float("-inf")
+    #     elif(opponentValue < 0):
+    #         opponentValue = -opponentValue
 
 
-        return playerValue + 0.1*opponentValue
+    #     return playerValue + 0.1*opponentValue
 
 
     # def evaluateFunction(self , node):
@@ -401,6 +405,26 @@ class MinimaxTree():
     #     return final    
 
 
+    def evaluateFunction(self , node):
+        playerCardsSum = sum(node.player.cards)
+        opponentCardsSum = sum(node.opponent.cards)
+
+        playerValue = playerCardsSum
+        if(41 - playerValue == 0):
+            return float("inf")
+        elif(41 - playerValue < 0):
+            playerValue = 41 - playerValue
+
+        opponentValue = 41 - sum(node.opponent.cards)
+        if(opponentValue == 0):
+            return -10 ** 10
+        elif(opponentValue < 0):
+            opponentValue = -opponentValue
+
+
+        return self.playerDistRatio * playerValue + self.playerErasesRatio * node.player.erases_remaining + \
+               self.opponentDistRatio * opponentValue - self.opponentErasesRatio * node.opponent.erases_remaining
+
 
     def minimax(self , currentNode , depth=0):
         moves = ["s" , "d" , "es" , "eo"]
@@ -429,7 +453,7 @@ class MinimaxTree():
                     continue
                 
                 moveValue = self.minimax(newNode , depth + 1)
-                if moveValue >= maxTotal:
+                if moveValue > maxTotal:
                     maxTotal = moveValue
                     bestMove = move
 
@@ -452,6 +476,7 @@ class MinimaxTree():
                 moveValue = self.minimax(newNode , depth + 1)
                 if moveValue < minTotal:
                     minTotal = moveValue
+
 
             return minTotal
 
