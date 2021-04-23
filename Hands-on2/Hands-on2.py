@@ -286,7 +286,7 @@ class MinimaxNode():
 
 class MinimaxTree():
     def __init__(self):
-        self.maxDepth = 4
+        self.maxDepth = 5
         self.playerDistRatio = 10
         self.playerErasesRatio = 0
         self.opponentDistRatio = 0.1
@@ -358,17 +358,7 @@ class MinimaxTree():
 
     
     def minimax(self , currentNode , depth=0):
-        if(depth % 2 == 0):
-            if(sum(currentNode.player.cards) > 41):
-                moves = ["es" , "eo" , "s" , "d"]
-            else:
-                moves = ["d" , "eo" , "s" , "es"]
-        else:
-            if(sum(currentNode.player.cards) > 41):
-                moves = ["d" , "s" , "eo" , "es"]
-            else:
-                moves = ["es" , "s" , "eo" , "d"]
-        
+        moves = ["s" , "d" , "es" , "eo"]
 
         if(depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped)):
             return self.evaluateFunction(currentNode)
@@ -406,8 +396,18 @@ class MinimaxTree():
 
 
     def minimaxWithPruning(self , currentNode , alpha , beta , depth=0):
-        moves = ["s" , "d" , "es" , "eo"]
+        if(depth % 2 == 0):
+            if(sum(currentNode.player.cards) > 41):
+                moves = ["es" , "eo" , "s" , "d"]
+            else:
+                moves = ["d" , "eo" , "s" , "es"]
+        else:
+            if(sum(currentNode.opponent.cards) > 41):
+                moves = ["es" , "s" , "d" , "eo"]
+            else:
+                moves = ["d" , "s" , "es" , "eo"]
 
+        
         if(depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped)):
             return self.evaluateFunction(currentNode)
 
@@ -475,7 +475,7 @@ elif(playerWins < opponentWins):
 else:
     print("It's a draw!")
 
-print("Minimax with pruning depth 4 (500 runs)")
+print("Minimax with pruning depth 5 (500 runs)")
 print("Number of player wins: " + str(playerWins))
 print("Number of opponent wins: " + str(opponentWins))
 print("Number of draws: " + str(draws))

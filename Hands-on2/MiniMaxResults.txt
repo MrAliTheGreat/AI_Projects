@@ -1,55 +1,45 @@
 player Wins!
 Minimax depth 3 (500 runs)
-Number of player wins: 387
-Number of opponent wins: 100
-Number of draws: 13
-Time: 27.426870107650757 s
+Number of player wins: 401
+Number of opponent wins: 78
+Number of draws: 21
+Time: 28.265185356140137 s
 
 player Wins!
 Minimax with pruning depth 3 (500 runs)
-Number of player wins: 388
-Number of opponent wins: 95
-Number of draws: 17
-Time: 12.963536672592163 s
+Number of player wins: 402
+Number of opponent wins: 88
+Number of draws: 10
+Time: 12.189709186553955 s
 
 
 
 player Wins!
 Minimax depth 4 (500 runs)
-Number of player wins: 398
-Number of opponent wins: 77
-Number of draws: 25
-Time: 85.49828290939331 s
+Number of player wins: 409
+Number of opponent wins: 73
+Number of draws: 18
+Time: 86.21616897583008 s
 
 player Wins!
 Minimax with pruning depth 4 (500 runs)
-Number of player wins: 399
-Number of opponent wins: 78
-Number of draws: 23
-Time: 33.78300449371338 s
+Number of player wins: 414
+Number of opponent wins: 61
+Number of draws: 25
+Time: 29.576841831207275 s
 
 
 
 player Wins!
 Minimax depth 5 (500 runs)
-Number of player wins: 439
-Number of opponent wins: 41
+Number of player wins: 438
+Number of opponent wins: 42
 Number of draws: 20
 Time: 229.57201671600342 s
 
 player Wins!
 Minimax with pruning depth 5 (500 runs)
-Number of player wins: 442
-Number of opponent wins: 40
-Number of draws: 18
-Time: 65.52471661567688 s
-
-
-
-player Wins!
-Minimax with pruning depth 6 (500 runs)
 Number of player wins: 440
-Number of opponent wins: 24
-Number of draws: 36
-Time: 137.1411383152008 s
-
+Number of opponent wins: 42
+Number of draws: 18
+Time: 47.76580858230591 s
