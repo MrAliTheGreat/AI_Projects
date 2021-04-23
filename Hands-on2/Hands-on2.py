@@ -189,6 +189,7 @@ class Blacksin:
             return False
         return True
 
+
     def get_player_input(self):
         minimaxTree = MinimaxTree()
         root = MinimaxNode(self.player , self.opponent , self.deck)
@@ -197,7 +198,8 @@ class Blacksin:
         player_input = minimaxTree.minimaxWithPruning(root , float("-inf") , float("inf"))
 
         self.handle_input(player_input , self.player)        
-            
+  
+
     def opponent_play(self):
         """
         function for opponent to play it's turn
@@ -284,7 +286,7 @@ class MinimaxNode():
 
 class MinimaxTree():
     def __init__(self):
-        self.maxDepth = 6
+        self.maxDepth = 4
         self.playerDistRatio = 10
         self.playerErasesRatio = 0
         self.opponentDistRatio = 0.1
@@ -356,7 +358,17 @@ class MinimaxTree():
 
     
     def minimax(self , currentNode , depth=0):
-        moves = ["s" , "d" , "es" , "eo"]
+        if(depth % 2 == 0):
+            if(sum(currentNode.player.cards) > 41):
+                moves = ["es" , "eo" , "s" , "d"]
+            else:
+                moves = ["d" , "eo" , "s" , "es"]
+        else:
+            if(sum(currentNode.player.cards) > 41):
+                moves = ["d" , "s" , "eo" , "es"]
+            else:
+                moves = ["es" , "s" , "eo" , "d"]
+        
 
         if(depth > self.maxDepth or (currentNode.player.has_stopped and currentNode.opponent.has_stopped)):
             return self.evaluateFunction(currentNode)
@@ -463,7 +475,7 @@ elif(playerWins < opponentWins):
 else:
     print("It's a draw!")
 
-print("Minimax with pruning depth 6 (500 runs)")
+print("Minimax with pruning depth 4 (500 runs)")
 print("Number of player wins: " + str(playerWins))
 print("Number of opponent wins: " + str(opponentWins))
 print("Number of draws: " + str(draws))
