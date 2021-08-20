@@ -1,0 +1,1 @@
+Using maching learning algorithms such as KNN, linear regression, decision tree and random forest with text processing to predict the price of cars in a car dealership site based on detailed information about the site's cars provided in a dataset
